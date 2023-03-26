@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nginx-tracing:local
+    environment:
+      - TZ=Asia/Tokyo
+    command: ./nginx-tracing
+    depends_on:
+      - jaeger
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
